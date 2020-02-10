@@ -145,7 +145,10 @@ aic_abrup<-list(data=NA)
   laselva$abrupt <- unlist(fitted(abrutp.Mod))
   head(laselva)
 
-  ### Best adjuts
+  
+  
+  ##### Self-Starting Nls Logistic Model ####
+  ## https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/SSlogis
   
   plot(dist ~ year, data=laselva)
   fit <- gnls(dist ~ SSlogis(year, Asym, xmid, scal), data=laselva)
