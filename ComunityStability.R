@@ -24,13 +24,6 @@ print(GLD.Mod)
 print(class(GLD.Mod))
 summary(GLD.Mod)
 
-if(class(GLD.Mod)[1] == "gnls" ){
-  res_GLD[[k]]<-fitted(GLD.Mod)
-  aic_GLD[[k]]<-AIC(GLD.Mod)
-}else{
-  res_GLD[[k]]<- rep(NA,nrow(laselva))
-  aic_GLD[[k]]<-NA
-}
 fitted(GLD.Mod) # ajuste de la curva
 AIC(GLD.Mod) # AIC del modelo
 
@@ -58,13 +51,6 @@ print(Rev.Mod )
 print(class(Rev.Mod ))
 summary(Rev.Mod )
 
-if(class(Rev.Mod)[1] == "gnls" ){
-  res_Rev[[k]]<-fitted(Rev.Mod)
-  aic_Rev[[k]]<-AIC(Rev.Mod)
-}else{
-  res_Rev[[k]]<- rep(NA,nrow(laselva))
-  aic_Rev[[k]]<-NA
-}
 fitted(Rev.Mod) # ajuste de la curva
 AIC(Rev.Mod) # AIC del modelo
 
@@ -110,13 +96,6 @@ stab.Mod <- try(gnls(dist ~ (Asym)*(1 - exp(lrc*(year))),data = laselva,
 
 print(class(stab.Mod))
 
-if(class(stab.Mod)[1] == "gnls"){
-  res_stab[[k]]<-fitted(stab.Mod)
-  aic_stab[[k]]<-AIC(stab.Mod)
-}else{
-  res_stab[[k]]<- rep(NA,nrow(laselva))
-  aic_stab[[k]]<-NA
-}
 fitted(stab.Mod)
 AIC(stab.Mod)
 
@@ -159,14 +138,7 @@ aic_abrup<-list(data=NA)
                        control = gnlsControl(nlsTol = 100)))
   print(k)
   print(class(disp.Mod))
-  if(class(disp.Mod)[1] == "gnls"){
-    res_abrup[[k]]<-fitted(abrutp.Mod)
-    aic_abrup[[k]]<-AIC(abrutp.Mod)
-  }else{
-    res_abrup[[k]]<- rep(NA,nrow(laselva))
-    aic_abrup[[k]]<-NA
-  }
-
+  
   fitted(abrutp.Mod)
   AIC(abrutp.Mod)
   
@@ -219,8 +191,8 @@ aic_abrup<-list(data=NA)
     denom1<-sum((siteCC$x-mean(siteCC$y1))^2)
     denom2<-sum((siteCC$y1-mean(siteCC$y1))^2)
     denom3<-length(siteCC$x)*(mean(siteCC$x)-mean(siteCC$y1))^2
-    CC_GLD[[k]]<- 1-((num)/(denom1+denom2+denom3))
-    print(CC_GLD[[k]])
+    CC_GLD<- 1-((num)/(denom1+denom2+denom3))
+    print(CC_GLD)
 
     ##CC score for reversible 
      
@@ -233,8 +205,8 @@ aic_abrup<-list(data=NA)
       denom1<-sum((siteCC$x-mean(siteCC$y2))^2)
       denom2<-sum((siteCC$y2-mean(siteCC$y2))^2)
       denom3<-length(siteCC$x)*(mean(siteCC$x)-mean(siteCC$y2))^2
-      CC_Rev[[k]]<- 1-((num)/(denom1+denom2+denom3))
-      print(CC_Rev[[k]])
+      CC_Rev<- 1-((num)/(denom1+denom2+denom3))
+      print(CC_Rev)
 
       ##CC score for stable curve
       CC_stab<-list(data=NA)
@@ -246,8 +218,8 @@ aic_abrup<-list(data=NA)
         denom1<-sum((siteCC$x-mean(siteCC$y3))^2)
         denom2<-sum((siteCC$y3-mean(siteCC$y3))^2)
         denom3<-length(siteCC$x)*(mean(siteCC$x)-mean(siteCC$y3))^2
-        CC_stab[[k]]<- 1-((num)/(denom1+denom2+denom3))
-        print(CC_stab[[k]])
+        CC_stab<- 1-((num)/(denom1+denom2+denom3))
+        print(CC_stab)
         
         ##CC score for abrupt 
         
@@ -260,17 +232,17 @@ aic_abrup<-list(data=NA)
           denom1<-sum((siteCC$x-mean(siteCC$y4))^2)
           denom2<-sum((siteCC$y4-mean(siteCC$y4))^2)
           denom3<-length(siteCC$x)*(mean(siteCC$x)-mean(siteCC$y4))^2
-          CC_abrup[[k]]<- 1-((num)/(denom1+denom2+denom3))
-          print(CC_abrup[[k]])
+          CC_abrup<- 1-((num)/(denom1+denom2+denom3))
+          print(CC_abrup)
         
           
   #### CC Sicrer #######
   ### Table 
           
-          print(CC_GLD[[k]])
-          print(CC_Rev[[k]])
-          print(CC_stab[[k]])
-          print(CC_abrup[[k]])
+          print(CC_GLD)
+          print(CC_Rev)
+          print(CC_stab)
+          print(CC_abrup)
           
           AIC(GLD.Mod)
           AIC(Rev.Mod)
