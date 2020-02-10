@@ -150,6 +150,12 @@ aic_abrup<-list(data=NA)
   plot(dist ~ year, data=laselva)
   fit <- gnls(dist ~ SSlogis(year, Asym, xmid, scal), data=laselva)
   curve(predict( fit, newdata = data.frame(year=x)), add=TRUE)
+  fitted(fit)
+  AIC(fit)
+  coef(fit)
+  
+  laselva$new <- unlist(fitted(fit))
+  head(laselva)
   
   curve(predict(abrutp.Mod, newdata = data.frame(year=x)), add=TRUE)
   
@@ -166,8 +172,8 @@ aic_abrup<-list(data=NA)
   laselva
   dat<-laselva
   head(dat)
-  siteCC <- array(NA, dim=c(nrow(dat),6))
-  colnames(siteCC)<-c("year", "x", "y1", "y2", "y3", "y4")
+  siteCC <- array(NA, dim=c(nrow(dat),7))
+  colnames(siteCC)<-c("year", "x", "y1", "y2", "y3", "y4", "y5")
   siteCC<-data.frame(unlist(siteCC))
   head(siteCC)
   dim(siteCC)
@@ -179,7 +185,8 @@ aic_abrup<-list(data=NA)
   siteCC$y1<-dat$GLD 
   siteCC$y2<-dat$Rev
   siteCC$y3<-dat$stab
-  siteCC$y4<-dat$abrupt  
+  siteCC$y4<-dat$abrupt 
+  siteCC$y5<-dat$new
   
 ##CC score for gradual linear
   CC_GLD<-list(data=NA)
@@ -234,6 +241,18 @@ aic_abrup<-list(data=NA)
           denom3<-length(siteCC$x)*(mean(siteCC$x)-mean(siteCC$y4))^2
           CC_abrup<- 1-((num)/(denom1+denom2+denom3))
           print(CC_abrup)
+          
+          CC_fit<-list(data=NA)
+          num<-NA
+          denom1<-NA
+          denom2<-NA
+          denom3<-NA
+          num<-sum((siteCC$x-siteCC$y5)^2)
+          denom1<-sum((siteCC$x-mean(siteCC$y5))^2)
+          denom2<-sum((siteCC$y4-mean(siteCC$y5))^2)
+          denom3<-length(siteCC$x)*(mean(siteCC$x)-mean(siteCC$y5))^2
+          CC_fit<- 1-((num)/(denom1+denom2+denom3))
+          print(CC_fit)
         
           
   #### CC Sicrer #######
@@ -243,11 +262,13 @@ aic_abrup<-list(data=NA)
           print(CC_Rev)
           print(CC_stab)
           print(CC_abrup)
+          print(CC_fit)
           
           AIC(GLD.Mod)
           AIC(Rev.Mod)
           AIC(stab.Mod)
           AIC(abrutp.Mod)
+          AIC(fit)
        
           
 plot(dist ~ year, data=laselva)
