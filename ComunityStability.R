@@ -1,6 +1,6 @@
 
 library(nlme)
-laselva<-read.csv("D:/Curriculum/02_ Articulos/00 In progress/220 Community stability/Statistical Analysis/laselva.csv",h=T) # read the accompanying csv file
+laselva<-read.csv("D:/Curriculum/02_ Articulos/00 In progress/220 Community stability/Community-stability/laselva.csv",h=T) # read the accompanying csv file
 head(laselva)
 nrow(laselva)
 
@@ -38,8 +38,6 @@ options(digits=3)  # digit number
 laselva$GLD <- unlist(fitted(GLD.Mod))
 head(laselva)
 
-
-
 plot(dist ~ year, data=laselva)
 curve(predict(GLD.Mod, newdata = data.frame(year=x)), col = "black", add = TRUE)
 
@@ -53,7 +51,7 @@ Rev.Mod <- try(gnls(dist ~ AsymA/(1+exp((xmidA-year)/scal1)) + (-AsymB /(1 + exp
                      data = laselva, 
                      correlation=corAR1(),
                      start = list(AsymA = 0.6 , AsymB = 0.6, xmidA = 10,xmidB = 20, scal1 = 1, scal2 = 1),     
-                    control = gnlsControl(nlsTol = 100)))
+                    control = gnlsControl(nlsTol = 500)))
 
 
 print(Rev.Mod )
@@ -80,9 +78,6 @@ coef(Rev.Mod)
 
 plot(dist ~ year, data=laselva)
 curve(predict(Rev.Mod , newdata = data.frame(year=x)), col = "black", add = TRUE)
-
-
-
 
 ## STABLE BEHAVIOUR ####
 
