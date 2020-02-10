@@ -270,6 +270,7 @@ aic_abrup<-list(data=NA)
         
           
   #### CC Sicrer #######
+  ### Table 
           
           print(CC_GLD[[k]])
           print(CC_Rev[[k]])
