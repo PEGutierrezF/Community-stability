@@ -280,3 +280,15 @@ curve(predict(Rev.Mod , newdata = data.frame(year=x)), col = "black", add = TRUE
 curve(predict(stab.Mod, newdata = data.frame(year=x)), col = "black", add = TRUE)
 curve(predict(abrutp.Mod, newdata = data.frame(year=x)), add=TRUE)
 
+plot(dist ~ year, data=laselva)
+curve(predict(GLD.Mod, newdata = data.frame(year=x)), col = "black", add = TRUE)
+curve(predict(Rev.Mod , newdata = data.frame(year=x)), col = "black", add = TRUE)
+curve(predict(stab.Mod, newdata = data.frame(year=x)), col = "black", add = TRUE)
+curve(predict(abrutp.Mod, newdata = data.frame(year=x)), add=TRUE)
+
+Model <- c("Gradual", "Reversible", "Stable", "Abrutp", "Self_Starting")
+CC <- c(print(CC_GLD), print(CC_Rev), print(CC_stab), print(CC_abrup), print(CC_fit))
+AIC <- c(AIC(GLD.Mod),AIC(Rev.Mod),AIC(stab.Mod),AIC(abrutp.Mod),AIC(fit))
+
+Results <- data.frame(Model,CC,AIC)
+Results
