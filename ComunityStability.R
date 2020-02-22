@@ -16,7 +16,7 @@ aic_GLD<-list(data=NA)
 GLD.Mod <- NA
 print(GLD.Mod)
 
-GLD.Mod <- try(gnls(dist ~ C + M*(year), data = laselva, 
+GLD.Mod <- try(gnls(dist ~ C + M*(samp_event), data = laselva, 
                         correlation=corAR1(), 
                         start=list(C=0,M=0)))
 
@@ -31,21 +31,31 @@ options(digits=3)  # digit number
 laselva$GLD <- unlist(fitted(GLD.Mod))
 head(laselva)
 
-plot(dist ~ year, data=laselva)
-curve(predict(GLD.Mod, newdata = data.frame(year=x)), col = "black", add = TRUE)
+plot(dist ~ samp_event, data=laselva)
+curve(predict(GLD.Mod, newdata = data.frame(samp_event=x)), col = "black", add = TRUE)
 
 
 ### REVERSIBLE DYNAMICS  #####
+## Defined by a double sigmoid mathematical fuction ##
+
+## dist = distancia the bray curtis
+## d_o = asymptotic height for onset
+## d_r= asymptotic height for return
+## teta_o = time of the onset, in which migration reaches one-half of its asymptotic height
+## teta_r = time of the return, in which migration reaches one-half of its asymptotic height
+## w_o = time elapsed between reaching one-half and three-quarters of the migration distance for onset
+## w_r = time elapsed between reaching one-half and three-quarters of the migration distance for return
+## t = time interval since beginning of the record.
+
 
 res_Rev<-list(data=NA)
 aic_Rev<-list(data=NA)
 
-Rev.Mod <- try(gnls(dist ~ AsymA/(1+exp((xmidA-year)/scal1)) + (-AsymB /(1 + exp((xmidB-year)/scal2))),
-                     data = laselva, 
-                     correlation=corAR1(),
-                     start = list(AsymA = 0.5 , AsymB = 0.5, xmidA = 10,xmidB = 100, scal1 = 1, scal2 = 1),     
+Rev.Mod <- try(gnls(dist ~ ((d_o)/(1+exp((teta_o-samp_event)/(w_o)))) - ((d_r)/(1+exp((teta_r-samp_event)/(w_r)))),
+                    data = laselva, 
+                    correlation=corAR1(),
+                    start = list(d_o = 0.6 , d_r = 0.6, teta_o = 10,teta_r = 100, w_o = 1, w_r = 1),     
                     control = gnlsControl(nlsTol = 500)))
-
 
 print(Rev.Mod )
 print(class(Rev.Mod ))
@@ -61,9 +71,8 @@ coef(Rev.Mod)
 
 ###### Reversible dynamics graph - Double sigmoidal #####
 
-
-plot(dist ~ year, data=laselva)
-curve(predict(Rev.Mod , newdata = data.frame(year=x)), col = "black", add = TRUE)
+plot(dist ~ samp_event, data=laselva)
+curve(predict(Rev.Mod , newdata = data.frame(samp_event=x)), col = "black", add = TRUE)
 
 ## STABLE BEHAVIOUR ####
 
