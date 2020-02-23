@@ -45,7 +45,7 @@ curve(predict(GLD.Mod, newdata = data.frame(samp_event=x)), col = "black", add =
 ## teta_r = time of the return, in which migration reaches one-half of its asymptotic height
 ## w_o = time elapsed between reaching one-half and three-quarters of the migration distance for onset
 ## w_r = time elapsed between reaching one-half and three-quarters of the migration distance for return
-## t = time interval since beginning of the record.
+## samp_event = time interval since beginning of the record.
 
 
 res_Rev<-list(data=NA)
@@ -74,11 +74,18 @@ coef(Rev.Mod)
 plot(dist ~ samp_event, data=laselva)
 curve(predict(Rev.Mod , newdata = data.frame(samp_event=x)), col = "black", add = TRUE)
 
+
+
 ## STABLE BEHAVIOUR ####
+
+##  distance between points = d
+##  asym = is the asymptote at the steady-state equilibrium
+##  lrc =is the logarithm of the rate constant.
+##  samp_event = time interval since beginning of the record.
 
 res_stab<-list(data=NA)
 aic_stab<-list(data=NA)
-null.mod<-NA  
+null.mod<-NA
 asym.HRmod<-NA
 stab.Mod <- NA
 
@@ -91,14 +98,14 @@ null.mod <- try(gnls(dist ~ A, data = laselva,
 
 ## Step 2 Asymp model
 
-asym.HRmod <- try(gnls(dist ~ Asym*(1-exp(lrc*year)), data = laselva, 
+asym.HRmod <- try(gnls(dist ~ Asym*(1-exp(lrc*samp_event)), data = laselva, 
                        correlation = corAR1(),
                        start = list(Asym =summary(null.mod)$tTable[1],lrc=-0.059), 
                        control = gnlsControl(nlsTol = 50)))
 
 ## Step 3 Full stability model
 
-stab.Mod <- try(gnls(dist ~ (Asym)*(1 - exp(lrc*(year))),data = laselva,
+stab.Mod <- try(gnls(dist ~ (Asym)*(1 - exp(lrc*(samp_event))),data = laselva,
                      correlation = corAR1(),
                      start = c(Asym = summary(asym.HRmod)$tTable[1], lrc = summary(asym.HRmod)$tTable[2]),
                      control = gnlsControl(nlsTol = 50)))
@@ -108,16 +115,27 @@ print(class(stab.Mod))
 fitted(stab.Mod)
 AIC(stab.Mod)
 
+laselva$Nullstab <- unlist(fitted(null.mod))
+head(laselva)
+
+laselva$HRmodstab <- unlist(fitted(asym.HRmod))
+head(laselva)
+
 laselva$stab <- unlist(fitted(stab.Mod))
 head(laselva)
 
 
-plot(dist ~ year, data=laselva)
-curve(predict(stab.Mod, newdata = data.frame(year=x)), col = "black", add = TRUE)
+plot(dist ~ samp_event, data=laselva)
+curve(predict(stab.Mod, newdata = data.frame(samp_event=x)), col = "black", add = TRUE)
 
 
 ## ABRUPT NONLINEAR BEHAVIOUR #### 
 
+## d (little delta) = asymtotic height
+## teta = is the time at which dispersal reaches half d,
+## w = is the time between reaching one-half and three-quarters of migrations
+## samp_event = time interval since beginning of the record.
+## $dist ~ d/ ( 1 + exp((teta - t)/ w))
 
 res_abrup<-list(data=NA)
 aic_abrup<-list(data=NA)
@@ -125,7 +143,6 @@ aic_abrup<-list(data=NA)
   null.mod<-NA  
   asym.HRmod<-NA
   disp.Mod <- NA
-  print(k)
   
   ## Step 1 NULL model
   null.mod <- try(gnls(dist ~ A, data = laselva, 
@@ -134,18 +151,18 @@ aic_abrup<-list(data=NA)
                        control=nlmeControl(maxIter=1000, pnlsMaxIter=200, niterEM=400, returnObject=TRUE),verbose=F))
   
   ## Step 2 Asymp model
-  asym.HRmod <- try(gnls(dist ~ Asym*(1-exp(lrc*year)), data = laselva, 
+  asym.HRmod <- try(gnls(dist ~ Asym*(1-exp(lrc*samp_event)), data = laselva, 
                          correlation = corAR1(),
                          start = c(Asym =summary(null.mod)$tTable[1],lrc=-0.059), 
                          control = gnlsControl(nlsTol = 100)))
  
    ## Step 3 Disp model 
-  abrutp.Mod <- try(gnls(dist ~ (Asym)/(1 + exp((xmid-year)/scal)),data = laselva,
+  abrutp.Mod <- try(gnls(dist ~ (Asym)/(1 + exp((xmid-samp_event)/scal)),data = laselva,
                        correlation = corAR1(), 
                        na.action = na.exclude,
                        start = c(Asym = summary(asym.HRmod)$tTable[1], xmid = 10, scal = 0.5),
                        control = gnlsControl(nlsTol = 100)))
-  print(k)
+  print(abrutp.Mod)
   print(class(disp.Mod))
   
   fitted(abrutp.Mod)
@@ -155,21 +172,24 @@ aic_abrup<-list(data=NA)
   head(laselva)
 
   
+  plot(dist ~ samp_event, data=laselva)
+  curve(predict(abrutp.Mod, newdata = data.frame(samp_event=x)), add=TRUE)
+  
   
   ##### Self-Starting Nls Logistic Model ####
   ## https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/SSlogis
   
-  plot(dist ~ year, data=laselva)
-  fit <- gnls(dist ~ SSlogis(year, Asym, xmid, scal), data=laselva)
-  curve(predict( fit, newdata = data.frame(year=x)), add=TRUE)
-  fitted(fit)
-  AIC(fit)
-  coef(fit)
+ 
+  SS.mod <- gnls(dist ~ SSlogis(samp_event, Asym, xmid, scal), data=laselva)
+  curve(predict(SS.mod, newdata = data.frame(samp_event=x)), add=TRUE)
+  fitted(SS.mod)
+  AIC(SS.mod)
+  coef(SS.mod)
   
-  laselva$new <- unlist(fitted(fit))
+  laselva$SS.mod <- unlist(fitted(SS.mod))
   head(laselva)
   
-  curve(predict(abrutp.Mod, newdata = data.frame(year=x)), add=TRUE)
+
   
   #####################################################
   ### Calculation of CC-score
@@ -180,12 +200,11 @@ aic_abrup<-list(data=NA)
   ## CC-score will be caclulated from x and y 
   ## use y1 for linear, y2 for reversible, y3 for stable, y4 for abrupt
   
-  
   laselva
   dat<-laselva
   head(dat)
-  siteCC <- array(NA, dim=c(nrow(dat),7))
-  colnames(siteCC)<-c("year", "x", "y1", "y2", "y3", "y4", "y5")
+  siteCC <- array(NA, dim=c(nrow(dat),9))
+  colnames(siteCC)<-c("year", "x", "y1", "y2", "y3", "y4", "y5","y6","y7")
   siteCC<-data.frame(unlist(siteCC))
   head(siteCC)
   dim(siteCC)
@@ -198,7 +217,10 @@ aic_abrup<-list(data=NA)
   siteCC$y2<-dat$Rev
   siteCC$y3<-dat$stab
   siteCC$y4<-dat$abrupt 
-  siteCC$y5<-dat$new
+  siteCC$y5<-dat$SS.mod
+  siteCC$y6<-dat$Nullstab
+  siteCC$y7<-dat$HRmodstab
+  
   
 ##CC score for gradual linear
   CC_GLD<-list(data=NA)
@@ -253,8 +275,10 @@ aic_abrup<-list(data=NA)
           denom3<-length(siteCC$x)*(mean(siteCC$x)-mean(siteCC$y4))^2
           CC_abrup<- 1-((num)/(denom1+denom2+denom3))
           print(CC_abrup)
+        
+          ##CC score for Self-Starting
           
-          CC_fit<-list(data=NA)
+          CC_SS<-list(data=NA)
           num<-NA
           denom1<-NA
           denom2<-NA
@@ -263,41 +287,71 @@ aic_abrup<-list(data=NA)
           denom1<-sum((siteCC$x-mean(siteCC$y5))^2)
           denom2<-sum((siteCC$y4-mean(siteCC$y5))^2)
           denom3<-length(siteCC$x)*(mean(siteCC$x)-mean(siteCC$y5))^2
-          CC_fit<- 1-((num)/(denom1+denom2+denom3))
-          print(CC_fit)
-        
+          CC_SS<- 1-((num)/(denom1+denom2+denom3))
+          print(CC_SS)
           
-  #### CC Sicrer #######
+          ##CC score for Null Hypothesis
+          
+          CC_Null<-list(data=NA)
+          num<-NA
+          denom1<-NA
+          denom2<-NA
+          denom3<-NA
+          num<-sum((siteCC$x-siteCC$y6)^2)
+          denom1<-sum((siteCC$x-mean(siteCC$y6))^2)
+          denom2<-sum((siteCC$y4-mean(siteCC$y6))^2)
+          denom3<-length(siteCC$x)*(mean(siteCC$x)-mean(siteCC$y6))^2
+          CC_Null<- 1-((num)/(denom1+denom2+denom3))
+          print(CC_Null)
+        
+          ##CC score for HRmodstab Hypothesis
+          
+          CC_HR<-list(data=NA)
+          num<-NA
+          denom1<-NA
+          denom2<-NA
+          denom3<-NA
+          num<-sum((siteCC$x-siteCC$y7)^2)
+          denom1<-sum((siteCC$x-mean(siteCC$y7))^2)
+          denom2<-sum((siteCC$y4-mean(siteCC$y7))^2)
+          denom3<-length(siteCC$x)*(mean(siteCC$x)-mean(siteCC$y7))^2
+          CC_HR<- 1-((num)/(denom1+denom2+denom3))
+          print(CC_HR)
+          
+  
+          
+          
+#### CC Sicrer #######
   ### Table 
           
           print(CC_GLD)
           print(CC_Rev)
           print(CC_stab)
           print(CC_abrup)
-          print(CC_fit)
+          print(CC_SS)
+          print(CC_Null)
+          print(CC_HR)
           
           AIC(GLD.Mod)
           AIC(Rev.Mod)
           AIC(stab.Mod)
           AIC(abrutp.Mod)
-          AIC(fit)
-       
+          AIC(SS.mod)
+          AIC(null.mod)
+          AIC(asym.HRmod)
           
-plot(dist ~ year, data=laselva)
-curve(predict(GLD.Mod, newdata = data.frame(year=x)), col = "black", add = TRUE)
-curve(predict(Rev.Mod , newdata = data.frame(year=x)), col = "black", add = TRUE)
-curve(predict(stab.Mod, newdata = data.frame(year=x)), col = "black", add = TRUE)
-curve(predict(abrutp.Mod, newdata = data.frame(year=x)), add=TRUE)
+plot(dist ~ samp_event, data=laselva)
+curve(predict(GLD.Mod, newdata = data.frame(samp_event=x)), col = "black", add = TRUE)
+curve(predict(Rev.Mod , newdata = data.frame(samp_event=x)), col = "black", add = TRUE)
+curve(predict(stab.Mod, newdata = data.frame(samp_event=x)), col = "black", add = TRUE)
+curve(predict(abrutp.Mod, newdata = data.frame(samp_event=x)), add=TRUE)
+curve(predict(SS.mod, newdata = data.frame(samp_event=x)), add=TRUE)
+curve(predict(null.mod, newdata = data.frame(samp_event=x)), add=TRUE)
+curve(predict(asym.HRmod, newdata = data.frame(samp_event=x)), add=TRUE)
 
-plot(dist ~ year, data=laselva)
-curve(predict(GLD.Mod, newdata = data.frame(year=x)), col = "black", add = TRUE)
-curve(predict(Rev.Mod , newdata = data.frame(year=x)), col = "black", add = TRUE)
-curve(predict(stab.Mod, newdata = data.frame(year=x)), col = "black", add = TRUE)
-curve(predict(abrutp.Mod, newdata = data.frame(year=x)), add=TRUE)
-
-Model <- c("Gradual", "Reversible", "Stable", "Abrutp", "Self_Starting")
-CC <- c(print(CC_GLD), print(CC_Rev), print(CC_stab), print(CC_abrup), print(CC_fit))
-AIC <- c(AIC(GLD.Mod),AIC(Rev.Mod),AIC(stab.Mod),AIC(abrutp.Mod),AIC(fit))
+Model <- c("Gradual", "Reversible", "Stable", "Abrutp", "Self_Starting", "Null Hypothesis","HR")
+CC <- c(print(CC_GLD), print(CC_Rev), print(CC_stab), print(CC_abrup), print(CC_SS),print(CC_Null),print(CC_HR))
+AIC <- c(AIC(GLD.Mod),AIC(Rev.Mod),AIC(stab.Mod),AIC(abrutp.Mod),AIC(SS.mod), AIC(null.mod), AIC(asym.HRmod))
 
 Results <- data.frame(Model,CC,AIC)
 Results
