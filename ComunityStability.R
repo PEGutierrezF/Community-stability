@@ -16,7 +16,7 @@ aic_GLD<-list(data=NA)
 GLD.Mod <- NA
 print(GLD.Mod)
 
-GLD.Mod <- try(gnls(dist ~ C + M*(samp_event), data = laselva, 
+GLD.Mod <- try(gnls(dist ~ C + M * (samp_event), data = laselva, 
                         correlation=corAR1(), 
                         start=list(C=0,M=0)))
 
@@ -340,7 +340,7 @@ aic_abrup<-list(data=NA)
           AIC(null.mod)
           AIC(asym.HRmod)
           
-plot(dist ~ samp_event, data=laselva)
+plot(dist ~ samp_event, data=laselva, xlab="Sampling event", ylab="Bray-Curtis distance")
 curve(predict(GLD.Mod, newdata = data.frame(samp_event=x)), col = "black", add = TRUE)
 curve(predict(Rev.Mod , newdata = data.frame(samp_event=x)), col = "black", add = TRUE)
 curve(predict(stab.Mod, newdata = data.frame(samp_event=x)), col = "black", add = TRUE)
