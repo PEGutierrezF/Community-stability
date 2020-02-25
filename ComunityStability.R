@@ -1,4 +1,9 @@
 
+
+### http://www.di.fc.ul.pt/~jpn/r/regression/regression.html
+
+
+
 library(nlme)
 laselva<-read.csv("D:/Curriculum/02_ Articulos/00 In progress/220 Community stability/Community-stability/laselva.csv",h=T) # read the accompanying csv file
 head(laselva)
