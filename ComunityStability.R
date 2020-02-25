@@ -24,9 +24,10 @@ aic_GLD<-list(data=NA)
 GLD.Mod <- NA
 print(GLD.Mod)
 
-GLD.Mod <- try(gnls(dist ~ a + (b * samp_event), data = laselva, 
+GLD.Mod <- try(gnls(dist ~ a + b * (samp_event), data = laselva, 
                         correlation=corAR1(), 
-                        start=list(a = 0, b = 0 )))
+                        start=list(a = 0, b = 0.1 ),
+                        control = gnlsControl(nlsTol = 500)))
 
 print(GLD.Mod)
 print(class(GLD.Mod))
