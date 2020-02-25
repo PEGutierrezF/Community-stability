@@ -356,8 +356,8 @@ curve(predict(GLD.Mod, newdata = data.frame(samp_event=x)), col = "black", add =
 curve(predict(Rev.Mod , newdata = data.frame(samp_event=x)), col = "black", add = TRUE)
 curve(predict(stab.Mod, newdata = data.frame(samp_event=x)), col = "black", add = TRUE)
 curve(predict(abrutp.Mod, newdata = data.frame(samp_event=x)), add=TRUE)
-curve(predict(SS.mod, newdata = data.frame(samp_event=x)), add=TRUE)
-curve(predict(null.mod, newdata = data.frame(samp_event=x)), add=TRUE)
+curve(predict(SS.mod, newdata = data.frame(samp_event=x)), col = "red", lwd = 3, add=TRUE)
+curve(predict(null.mod, newdata = data.frame(samp_event=x)), col = "blue",lwd = 3, add=TRUE)
 curve(predict(asym.HRmod, newdata = data.frame(samp_event=x)), add=TRUE)
 
 Model <- c("Gradual", "Reversible", "Stable", "Abrutp", "Self_Starting", "Null Hypothesis","HR")
