@@ -7,18 +7,21 @@ nrow(laselva)
 
 ## GRADUAL LINEAR DYNAMICS  #####
 
-# where M is the diffusion constant 
-# t denotes the time since beginning of the record, 
-# and C is an error term representing the intercept. 
+# b = the slope is b (the change in y divided by the change in x which brought it about) 
+# samp_event = denotes the time since beginning of the record
+# a = the value of y when x = 0
+
+model <- lm(dist~samp_event, data = laselva)
+model
 
 res_GLD<-list(data=NA)
 aic_GLD<-list(data=NA)
 GLD.Mod <- NA
 print(GLD.Mod)
 
-GLD.Mod <- try(gnls(dist ~ C + M * (samp_event), data = laselva, 
+GLD.Mod <- try(gnls(dist ~ a + (b * samp_event), data = laselva, 
                         correlation=corAR1(), 
-                        start=list(C=0,M=0)))
+                        start=list(a = 0, b = 0 )))
 
 print(GLD.Mod)
 print(class(GLD.Mod))
@@ -26,6 +29,8 @@ summary(GLD.Mod)
 
 fitted(GLD.Mod) # ajuste de la curva
 AIC(GLD.Mod) # AIC del modelo
+coef(GLD.Mod)
+
 
 options(digits=3)  # digit number
 laselva$GLD <- unlist(fitted(GLD.Mod))
@@ -133,7 +138,7 @@ curve(predict(stab.Mod, newdata = data.frame(samp_event=x)), col = "black", add 
 
 ## d (little delta) = asymtotic height
 ## teta = is the time at which dispersal reaches half d,
-## w = is the time between reaching one-half and three-quarters of migrations
+## w_o = time elapsed between reaching one-half and three-quarters of the migration distance for onset
 ## samp_event = time interval since beginning of the record.
 ## $dist ~ d/ ( 1 + exp((teta - t)/ w))
 
@@ -151,16 +156,16 @@ aic_abrup<-list(data=NA)
                        control=nlmeControl(maxIter=1000, pnlsMaxIter=200, niterEM=400, returnObject=TRUE),verbose=F))
   
   ## Step 2 Asymp model
-  asym.HRmod <- try(gnls(dist ~ Asym*(1-exp(lrc*samp_event)), data = laselva, 
+  asym.HRmod <- try(gnls(dist ~ Asym*(1-exp(lrc*samp_event)/w_o), data = laselva, 
                          correlation = corAR1(),
-                         start = c(Asym =summary(null.mod)$tTable[1],lrc=-0.059), 
+                         start = c(Asym =summary(null.mod)$tTable[1],lrc=-0.059, w_o = 0.5), 
                          control = gnlsControl(nlsTol = 100)))
  
    ## Step 3 Disp model 
-  abrutp.Mod <- try(gnls(dist ~ (Asym)/(1 + exp((xmid-samp_event)/scal)),data = laselva,
+  abrutp.Mod <- try(gnls(dist ~ (Asym)/(1 + exp((xmid-samp_event)/w_o)),data = laselva,
                        correlation = corAR1(), 
                        na.action = na.exclude,
-                       start = c(Asym = summary(asym.HRmod)$tTable[1], xmid = 10, scal = 0.5),
+                       start = c(Asym = summary(asym.HRmod)$tTable[1], xmid = 10, w_o = 0.5),
                        control = gnlsControl(nlsTol = 100)))
   print(abrutp.Mod)
   print(class(disp.Mod))
