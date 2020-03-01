@@ -5,7 +5,7 @@
 
 
 library(nlme)
-laselva<-read.csv("D:/Curriculum/02_ Articulos/00 In progress/220 Community stability/Community-stability/laselva.csv",h=T) # read the accompanying csv file
+laselva<-read.csv("D:/Curriculum/02_ Articulos/00 In progress/220 Community stability/Community_stability_Movement_Models/laselva.csv",h=T) # read the accompanying csv file
 head(laselva)
 nrow(laselva)
 
